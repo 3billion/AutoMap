@@ -87,11 +87,16 @@ while (<IN>){
 
 		my @cov_info=split(/:/,$record[9]);
 		my $zyg="";
-		if($cov_info[0] eq "1/1"){
-			$zyg="hom";	
-		}
-		if($cov_info[0] eq "0/1"){
-			$zyg="het";	
+
+		# ignore missing allele
+		if ($cov_info[0] =~ m{^([0-9]+)(?:\/|\|)([0-9]+)$}) {
+			my $allele1 = $1;
+			my $allele2 = $2;
+			if ($allele1 eq $allele2 && $allele1 ne "0") {
+				$zyg = "hom";  # homozygous
+			} elsif ($allele1 ne $allele2) {
+				$zyg = "het";  # heterozygous
+			}
 		}
 		print OUT "$zyg\t$record[5]\t$record[6]\t";
 
